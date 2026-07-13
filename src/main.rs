@@ -1,10 +1,10 @@
-use gtk4::cairo::{Context, Region};
+use gtk4::cairo::Region;
 use gtk4::gdk::Display;
 use gtk4::{Application, ApplicationWindow, DrawingArea};
 use gtk4::{CssProvider, prelude::*};
 use gtk4_layer_shell::{Edge, Layer, LayerShell};
 
-use crate::crosshair::{Point, draw_crosshair};
+use crate::crosshair::{CrosshairConfig, Point, draw_crosshair};
 
 mod crosshair;
 fn main() {
@@ -43,13 +43,15 @@ fn main() {
 
         window.present();
 
+        let crosshair_config = CrosshairConfig::load_from_file().clone();
+
         let drawing_area = DrawingArea::new();
-        drawing_area.set_draw_func(|_, cr, width, height| {
+        drawing_area.set_draw_func(move |_, cr, width, height| {
             let cx = width as f64 / 2.0;
             let cy = height as f64 / 2.0;
             let center = Point { x: cx, y: cy };
 
-            draw_crosshair(cr, &center);
+            draw_crosshair(cr, &center, &crosshair_config);
         });
 
         window.set_child(Some(&drawing_area));
